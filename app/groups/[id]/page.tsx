@@ -228,19 +228,18 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   const calculateUserShare = useCallback((expense: Expense) => {
     if (!userPersona) return { amount: 0, type: 'none' }
     
-    const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
-    if (!userSplit) return { amount: 0, type: 'none' }
-    
-    const userAmount = userSplit.amount
     const isPaidByUser = expense.paid_by_email === userPersona.email
     
     if (isPaidByUser) {
-      // User paid the expense, show what they paid
-      return { amount: userAmount, type: 'paid' }
-    } else {
-      // User owes money, show what they owe
-      return { amount: userAmount, type: 'owe' }
+      // Show the total amount paid for the expense when the user is the payer
+      return { amount: expense.amount, type: 'paid' }
     }
+    
+    const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
+    if (!userSplit) return { amount: 0, type: 'none' }
+    
+    // Otherwise, show what the user owes for their share
+    return { amount: userSplit.amount, type: 'owe' }
   }, [userPersona])
 
   // Calculate balances and settlements
