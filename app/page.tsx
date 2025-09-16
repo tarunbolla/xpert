@@ -121,7 +121,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -134,9 +134,9 @@ export default function HomePage() {
                   <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-green-200 transition-colors duration-200" aria-hidden="true">
                     <SparklesIcon className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 id="ai-analysis-title" className="card-title">AI-Powered Analysis</h3>
+                  <h3 id="ai-analysis-title" className="card-title">AI-Powered Categorization</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    Automatic expense categorization, duplicate detection, and spending insights powered by advanced AI algorithms.
+                    Automatic expense categorization using AI to intelligently classify your expenses into relevant categories.
                   </p>
                 </div>
               </motion.div>
@@ -172,9 +172,30 @@ export default function HomePage() {
                   <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-purple-200 transition-colors duration-200" aria-hidden="true">
                     <ChartBarIcon className="w-8 h-8 text-purple-600" />
                   </div>
-                  <h3 id="smart-insights-title" className="card-title">Smart Insights</h3>
+                  <h3 id="smart-insights-title" className="card-title">Spending Analytics</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    Get detailed spending breakdowns, category analysis, and budget insights to make informed financial decisions.
+                    View detailed spending breakdowns by category, track totals, and analyze your group's expense patterns.
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="card-elevated text-center group"
+                role="article"
+                aria-labelledby="settlement-title"
+              >
+                <div className="card-body">
+                  <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-blue-200 transition-colors duration-200" aria-hidden="true">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  </div>
+                  <h3 id="settlement-title" className="card-title">Easy Settlements</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Track who owes what and create transfers between group members to settle balances effortlessly.
                   </p>
                 </div>
               </motion.div>
