@@ -598,6 +598,11 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                       return groups
                     }, {} as Record<string, typeof allActivities>)
                     
+                    // Sort activities within each date group by time (descending)
+                    Object.keys(groupedActivities).forEach(date => {
+                      groupedActivities[date].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    })
+                    
                     return (
                       <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
                         <div>
