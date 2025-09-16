@@ -46,5 +46,8 @@
     "eslint": "^8.52.0",
     "eslint-config-next": "^14.0.0",
     "supabase": "^1.226.4"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
