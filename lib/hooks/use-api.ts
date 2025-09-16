@@ -196,14 +196,6 @@ const api = {
     if (error) throw new Error(error)
   },
 
-  async deleteExpense(expenseId: string, userEmail: string, userName: string): Promise<void> {
-    const response = await fetch(`/api/expenses?expenseId=${expenseId}&userEmail=${encodeURIComponent(userEmail)}&userName=${encodeURIComponent(userName)}`, {
-      method: 'DELETE',
-    })
-    const { error } = await response.json()
-    if (error) throw new Error(error)
-  },
-
   // Transfers
   async getTransfers(groupId: string): Promise<Transfer[]> {
     const response = await fetch(`/api/transfers?groupId=${groupId}`)
