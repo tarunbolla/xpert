@@ -42,7 +42,17 @@ Focus on the most specific and accurate category. Consider the context and amoun
       max_tokens: 100,
     })
 
-    const analysis = JSON.parse(response.choices[0].message.content || '{}')
+    const responseContent = response.choices[0].message.content || '{}'
+    
+    // Handle markdown code blocks in response
+    let jsonContent = responseContent
+    if (responseContent.includes('```json')) {
+      jsonContent = responseContent.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+    } else if (responseContent.includes('```')) {
+      jsonContent = responseContent.replace(/```\n?/g, '').replace(/```\n?/g, '').trim()
+    }
+    
+    const analysis = JSON.parse(jsonContent)
     
     return {
       category: analysis.category || 'Other',
