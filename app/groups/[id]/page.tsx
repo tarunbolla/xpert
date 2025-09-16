@@ -228,19 +228,22 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   const calculateUserShare = useCallback((expense: Expense) => {
     if (!userPersona) return { amount: 0, type: 'none' }
     
-    const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
-    if (!userSplit) return { amount: 0, type: 'none' }
-    
-    const userAmount = userSplit.amount
     const isPaidByUser = expense.paid_by_email === userPersona.email
     
     if (isPaidByUser) {
-      // User paid the expense, show what they paid
-      return { amount: userAmount, type: 'paid' }
-    } else {
-      // User owes money, show what they owe
-      return { amount: userAmount, type: 'owe' }
+      // When the user is the payer, show how much others owe them for this expense
+      const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
+      const userOwnShare = userSplit ? userSplit.amount : 0
+      const amountOwedToUser = Math.max(0, expense.amount - userOwnShare)
+      if (amountOwedToUser <= 0.01) return { amount: 0, type: 'none' }
+      return { amount: amountOwedToUser, type: 'owed' as const }
     }
+    
+    const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
+    if (!userSplit) return { amount: 0, type: 'none' }
+    
+    // Otherwise, show what the user owes for their share
+    return { amount: userSplit.amount, type: 'owe' as const }
   }, [userPersona])
 
   // Calculate balances and settlements
@@ -656,16 +659,24 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                                           
                                           return (
                                             <>
-                                              <div className={`text-xs font-semibold ${
-                                                userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
-                                              }`}>
-                                                {userShare.type === 'owe' ? 'You owe' : 'You paid'}
-                                              </div>
-                                              <div className={`text-xs font-semibold ${
-                                                userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
-                                              }`}>
-                                                ${userShare.amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                              </div>
+                                              {(() => {
+                                                const colorClass = userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
+                                                const label = userShare.type === 'owe' 
+                                                  ? 'You owe' 
+                                                  : (userShare.type === 'owed' 
+                                                    ? "You're owed" 
+                                                    : 'You paid')
+                                                return (
+                                                  <>
+                                                    <div className={`text-xs font-semibold ${colorClass}`}>
+                                                      {label}
+                                                    </div>
+                                                    <div className={`text-xs font-semibold ${colorClass}`}>
+                                                      ${userShare.amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                  </>
+                                                )
+                                              })()}
                                             </>
                                           )
                                         })()}
