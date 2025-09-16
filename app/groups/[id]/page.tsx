@@ -231,15 +231,19 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
     const isPaidByUser = expense.paid_by_email === userPersona.email
     
     if (isPaidByUser) {
-      // Show the total amount paid for the expense when the user is the payer
-      return { amount: expense.amount, type: 'paid' }
+      // When the user is the payer, show how much others owe them for this expense
+      const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
+      const userOwnShare = userSplit ? userSplit.amount : 0
+      const amountOwedToUser = Math.max(0, expense.amount - userOwnShare)
+      if (amountOwedToUser <= 0.01) return { amount: 0, type: 'none' }
+      return { amount: amountOwedToUser, type: 'owed' as const }
     }
     
     const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
     if (!userSplit) return { amount: 0, type: 'none' }
     
     // Otherwise, show what the user owes for their share
-    return { amount: userSplit.amount, type: 'owe' }
+    return { amount: userSplit.amount, type: 'owe' as const }
   }, [userPersona])
 
   // Calculate balances and settlements
@@ -655,16 +659,24 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                                           
                                           return (
                                             <>
-                                              <div className={`text-xs font-semibold ${
-                                                userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
-                                              }`}>
-                                                {userShare.type === 'owe' ? 'You owe' : 'You paid'}
-                                              </div>
-                                              <div className={`text-xs font-semibold ${
-                                                userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
-                                              }`}>
-                                                ${userShare.amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                              </div>
+                                              {(() => {
+                                                const colorClass = userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
+                                                const label = userShare.type === 'owe' 
+                                                  ? 'You owe' 
+                                                  : (userShare.type === 'owed' 
+                                                    ? "You're owed" 
+                                                    : 'You paid')
+                                                return (
+                                                  <>
+                                                    <div className={`text-xs font-semibold ${colorClass}`}>
+                                                      {label}
+                                                    </div>
+                                                    <div className={`text-xs font-semibold ${colorClass}`}>
+                                                      ${userShare.amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </div>
+                                                  </>
+                                                )
+                                              })()}
                                             </>
                                           )
                                         })()}
