@@ -1,0 +1,405 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    /* Robinhood-style mint green primary */
+    --primary: 158 64% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    /* Robinhood-style red for negative values */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 158 64% 52%;
+    --radius: 0.75rem;
+    
+    /* Robinhood-specific colors */
+    --robinhood-green: 158 64% 52%;
+    --robinhood-red: 0 84.2% 60.2%;
+    --robinhood-gray: 215 16% 47%;
+    --robinhood-dark: 222 84% 5%;
+    
+    /* Professional Design System Variables */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* Spacing Scale */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+    
+    /* Border Radius Scale */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Mobile-first Typography Scale */
+  h1 {
+    @apply text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-gray-900;
+  }
+  
+  h2 {
+    @apply text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-gray-900;
+  }
+  
+  h3 {
+    @apply text-lg sm:text-xl md:text-2xl font-bold text-gray-900;
+  }
+  
+  h4 {
+    @apply text-base sm:text-lg md:text-xl font-bold text-gray-900;
+  }
+  
+  h5 {
+    @apply text-sm sm:text-base md:text-lg font-bold text-gray-900;
+  }
+  
+  h6 {
+    @apply text-xs sm:text-sm md:text-base font-bold text-gray-900;
+  }
+  
+  /* Robinhood-style text utilities */
+  .text-robinhood {
+    @apply font-semibold text-gray-900;
+  }
+  
+  .text-robinhood-muted {
+    @apply font-medium text-gray-500;
+  }
+  
+  .text-robinhood-success {
+    @apply font-bold text-green-500;
+  }
+  
+  .text-robinhood-danger {
+    @apply font-bold text-red-500;
+  }
+  
+  /* Professional Card Styles - Following Best Practices */
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    min-height: 44px; /* Touch-friendly minimum height */
+  }
+  
+  .card-elevated {
+    @apply bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-200;
+    min-height: 44px; /* Touch-friendly minimum height */
+  }
+  
+  .card-interactive {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200 cursor-pointer;
+    min-height: 44px; /* Touch-friendly minimum height */
+    min-width: 44px; /* Touch-friendly minimum width */
+  }
+  
+  /* Card Content Structure */
+  .card-header {
+    @apply p-4 sm:p-6 border-b border-gray-100;
+  }
+  
+  .card-body {
+    @apply p-4 sm:p-6;
+  }
+  
+  .card-footer {
+    @apply p-4 sm:p-6 border-t border-gray-100 bg-gray-50;
+  }
+  
+  /* Card Title Hierarchy */
+  .card-title {
+    @apply text-lg sm:text-xl font-semibold text-gray-900 mb-2;
+  }
+  
+  .card-subtitle {
+    @apply text-sm sm:text-base text-gray-600 mb-4;
+  }
+  
+  /* Card Action Areas */
+  .card-action {
+    @apply p-4 sm:p-6 border-t border-gray-100 bg-white;
+  }
+  
+  /* Card Status Indicators */
+  .card-status {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold;
+  }
+  
+  .card-status-active {
+    @apply bg-green-100 text-green-700;
+  }
+  
+  .card-status-pending {
+    @apply bg-yellow-100 text-yellow-700;
+  }
+  
+  .card-status-inactive {
+    @apply bg-gray-100 text-gray-700;
+  }
+  
+/* Activity Feed Layout Styles - Compact Only */
+.activity-compact {
+  @apply flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 cursor-pointer hover:bg-gray-50;
+}
+  
+.activity-compact-content {
+  @apply flex-1 min-w-0;
+}
+
+.activity-compact-title {
+  @apply text-sm font-semibold text-gray-900 truncate;
+}
+
+.activity-compact-meta {
+  @apply text-xs text-gray-500 space-y-1;
+}
+
+.activity-compact-amount {
+  @apply text-sm font-bold text-gray-900 flex-shrink-0;
+}
+
+/* Icon Action Buttons */
+.activity-icon-btn {
+  @apply w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200;
+}
+
+.activity-icon-btn-edit {
+  @apply bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800;
+}
+
+.activity-icon-btn:hover {
+  @apply transform scale-105;
+}
+  
+  /* Mobile-first Button Styles */
+  .btn-primary {
+    @apply bg-green-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md text-sm flex items-center justify-center;
+  }
+  
+  .btn-secondary {
+    @apply border border-gray-300 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 bg-white text-sm flex items-center justify-center;
+  }
+  
+  .btn-outline {
+    @apply border border-green-500 text-green-500 px-3 py-2 rounded-lg font-medium hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 text-sm flex items-center justify-center;
+  }
+  
+  /* Robinhood-style success/positive button */
+  .btn-success {
+    @apply bg-green-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  /* Robinhood-style danger/negative button */
+  .btn-danger {
+    @apply bg-red-500 text-white px-3 py-2 rounded-lg font-medium hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md text-sm flex items-center justify-center;
+  }
+  
+  /* Small button variant for compact spaces */
+  .btn-sm {
+    @apply px-2 py-1 text-xs rounded-lg font-medium;
+  }
+  
+  /* Large button variant for primary actions */
+  .btn-lg {
+    @apply px-4 py-3 text-base rounded-lg font-semibold;
+  }
+  
+  /* Ghost button variant for subtle actions */
+  .btn-ghost {
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 text-sm flex items-center justify-center;
+  }
+  
+  /* Icon-only button variant */
+  .btn-icon {
+    @apply p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center;
+  }
+  
+  /* Mobile-first Input Styles */
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm text-sm;
+  }
+  
+  /* Mobile-first Layout Utilities */
+  .container-pro {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section-padding {
+    @apply py-8 sm:py-12 md:py-16 lg:py-20;
+  }
+  
+  .card-padding {
+    @apply p-4 sm:p-6 md:p-8;
+  }
+  
+  /* Mobile-first Spacing Utilities */
+  .space-section {
+    @apply space-y-6 sm:space-y-8 md:space-y-12;
+  }
+  
+  .space-card {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  /* Professional Border Styles */
+  .border-subtle {
+    @apply border border-gray-200;
+  }
+  
+  .border-emphasis {
+    @apply border border-gray-300;
+  }
+  
+  .divider {
+    @apply border-t border-gray-200;
+  }
+  
+  /* Robinhood-style utility classes */
+  .robinhood-card {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+  
+  .robinhood-card-elevated {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-lg transition-all duration-200;
+  }
+  
+  .robinhood-button {
+    @apply bg-green-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .robinhood-button-secondary {
+    @apply border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 bg-white;
+  }
+  
+  .robinhood-input {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm;
+  }
+  
+  .robinhood-status-active {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold;
+  }
+  
+  .robinhood-status-inactive {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-sm font-semibold;
+  }
+  
+  /* Robinhood-style animations */
+  .robinhood-hover-lift {
+    @apply transition-transform duration-200 hover:-translate-y-1;
+  }
+  
+  .robinhood-fade-in {
+    @apply transition-opacity duration-300 opacity-0 hover:opacity-100;
+  }
+  
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  
+  /* Consistent Loading States */
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-gray-200 border-t-green-500;
+  }
+  
+  .loading-spinner-sm {
+    @apply w-4 h-4 sm:w-5 sm:h-5;
+  }
+  
+  .loading-spinner-md {
+    @apply w-6 h-6 sm:w-8 sm:h-8;
+  }
+  
+  .loading-spinner-lg {
+    @apply w-8 h-8 sm:w-10 sm:h-10;
+  }
+  
+  .loading-spinner-xl {
+    @apply w-12 h-12 sm:w-16 sm:h-16;
+  }
+  
+  /* Loading skeleton patterns */
+  .loading-skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+  
+  .loading-text {
+    @apply loading-skeleton h-4 w-3/4;
+  }
+  
+  .loading-text-sm {
+    @apply loading-skeleton h-3 w-1/2;
+  }
+  
+  .loading-text-lg {
+    @apply loading-skeleton h-6 w-full;
+  }
+  
+  /* Loading card pattern */
+  .loading-card {
+    @apply bg-white rounded-lg border border-gray-100 shadow-sm p-4 sm:p-6;
+  }
+  
+  .loading-card-content {
+    @apply space-y-3;
+  }
+  
+  /* Loading button state */
+  .btn-loading {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  
+  .btn-loading .loading-spinner {
+    @apply w-4 h-4 sm:w-5 sm:h-5;
+  }
+}
