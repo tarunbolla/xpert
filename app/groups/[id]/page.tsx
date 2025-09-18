@@ -351,7 +351,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       const settlementAmount = Math.min(creditor.net_balance, Math.abs(debtor.net_balance))
       
       if (settlementAmount > 0.01) { // Only create settlements for amounts > 1 cent
+        // Round to 2 decimal places to avoid floating point precision issues
         const roundedAmount = Math.round(settlementAmount * 100) / 100
+        
         settlements.push({
           from_user: debtor.user_email,
           from_name: debtor.user_name,
@@ -360,10 +362,12 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
           amount: roundedAmount
         })
 
+        // Update balances with proper rounding
         creditor.net_balance = Math.round((creditor.net_balance - roundedAmount) * 100) / 100
         debtor.net_balance = Math.round((debtor.net_balance + roundedAmount) * 100) / 100
       }
 
+      // Move to next creditor/debtor if balance is effectively zero
       if (Math.abs(creditor.net_balance) < 0.01) creditorIndex++
       if (Math.abs(debtor.net_balance) < 0.01) debtorIndex++
     }
@@ -1071,7 +1075,7 @@ function AddExpenseModal({
     splits = formData.selectedMembers.map(email => {
       const member = group?.members?.find(m => m.email === email)
       const ratio = formData.memberRatios[email] || 1
-      const amount = (totalAmount * ratio) / totalRatio
+      const amount = Math.round(((totalAmount * ratio) / totalRatio) * 100) / 100
       
       return {
         name: member?.name || '',
@@ -1229,7 +1233,7 @@ function AddExpenseModal({
                   }, 0)
                   
                   const splitAmount = formData.amount && isSelected && totalRatio > 0
-                    ? ((parseFloat(formData.amount) * ratio) / totalRatio).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    ? (Math.round(((parseFloat(formData.amount) * ratio) / totalRatio) * 100) / 100).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                     : '0.00'
                   
                   return (
@@ -1402,7 +1406,7 @@ function EditExpenseModal({
     splits = formData.selectedMembers.map(email => {
       const member = group?.members?.find(m => m.email === email)
       const ratio = formData.memberRatios[email] || 1
-      const amount = (totalAmount * ratio) / totalRatio
+      const amount = Math.round(((totalAmount * ratio) / totalRatio) * 100) / 100
       
       return {
         name: member?.name || '',
@@ -1529,7 +1533,7 @@ function EditExpenseModal({
                   }, 0)
                   
                   const splitAmount = formData.amount && isSelected && totalRatio > 0
-                    ? ((parseFloat(formData.amount) * ratio) / totalRatio).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    ? (Math.round(((parseFloat(formData.amount) * ratio) / totalRatio) * 100) / 100).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                     : '0.00'
                   
                   return (
