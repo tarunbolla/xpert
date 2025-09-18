@@ -44,7 +44,7 @@ export default function DemoPage() {
               See Xpert Expense Manager in Action
             </h1>
             <p className="text-xl sm:text-2xl text-gray-600 leading-relaxed">
-              Experience how AI makes expense management effortless for your next trip.
+              Experience how smart categorization makes expense management effortless for your next trip.
               <br className="hidden sm:block" />
               <span className="text-green-600 font-semibold">Smart, simple, and powerful.</span>
             </p>
@@ -70,7 +70,7 @@ export default function DemoPage() {
                     <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center" aria-hidden="true">
                       <SparklesIcon className="w-6 h-6 text-green-600" />
                     </div>
-                    <h2 id="ai-analysis-demo-title" className="text-2xl font-semibold text-gray-900">AI-Powered Categorization</h2>
+                    <h2 id="ai-analysis-demo-title" className="text-2xl font-semibold text-gray-900">Smart Categorization</h2>
                   </div>
                 </div>
                 
@@ -88,7 +88,7 @@ export default function DemoPage() {
                     </div>
                     
                     <div className="p-4 bg-gradient-to-r from-green-50 to-indigo-50 rounded-xl border border-green-200">
-                      <div className="text-sm text-green-600 mb-3 font-medium">AI categorizes:</div>
+                      <div className="text-sm text-green-600 mb-3 font-medium">Smart categorization:</div>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-gray-700">Category:</span>
@@ -320,7 +320,7 @@ export default function DemoPage() {
                   <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                     <div className="w-3 h-3 bg-green-500 rounded-full" aria-hidden="true"></div>
                     <div className="flex-1">
-                      <span className="font-semibold text-gray-900">AI</span> categorized as "Food & Dining" (95% confidence)
+                      <span className="font-semibold text-gray-900">System</span> categorized as "Food & Dining"
                     </div>
                     <div className="text-sm text-gray-500">2 hours ago</div>
                   </div>
@@ -350,7 +350,7 @@ export default function DemoPage() {
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Ready to Try It?</h2>
             <p className="text-xl text-green-100 mb-8 leading-relaxed">
-              Start managing your next trip's expenses with AI-powered insights and seamless group collaboration.
+              Start managing your next trip's expenses with smart categorization and seamless group collaboration.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

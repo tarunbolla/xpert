@@ -78,9 +78,9 @@ export default function HomePage() {
                 Xpert Expense Manager
               </h1>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
-                AI-powered group expense management for holidays, travel, and shared adventures.
+                Smart group expense management for holidays, travel, and shared adventures.
                 <br className="hidden sm:block" />
-                <span className="text-green-600 font-semibold">Let AI handle the complexity while you focus on the fun.</span>
+                <span className="text-green-600 font-semibold">Split costs effortlessly and focus on the fun.</span>
               </p>
             </div>
             
@@ -117,7 +117,7 @@ export default function HomePage() {
                 Powerful Features for Smart Expense Management
               </h2>
               <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-                Everything you need to manage group expenses efficiently, powered by cutting-edge AI technology.
+                Everything you need to manage group expenses efficiently, with smart categorization and real-time collaboration.
               </p>
             </div>
 
@@ -134,9 +134,9 @@ export default function HomePage() {
                   <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-green-200 transition-colors duration-200" aria-hidden="true">
                     <SparklesIcon className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 id="ai-analysis-title" className="card-title">AI-Powered Categorization</h3>
+                  <h3 id="ai-analysis-title" className="card-title">Smart Categorization</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    Automatic expense categorization using AI to intelligently classify your expenses into relevant categories.
+                    Automatic expense categorization to help organize your expenses into relevant categories.
                   </p>
                 </div>
               </motion.div>
