@@ -1,5 +1,5 @@
 -- Complete Database Schema for Expense Tracking App
--- This file combines all migrations into a single comprehensive schema
+-- This file contains the complete, consolidated database schema
 
 -- Create groups table
 CREATE TABLE groups (
@@ -43,7 +43,7 @@ CREATE TABLE expenses (
   ai_confidence DECIMAL(3,2)
 );
 
--- Create expense_splits table
+-- Create expense_splits table (with ratio field included)
 CREATE TABLE expense_splits (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   expense_id UUID REFERENCES expenses(id) ON DELETE CASCADE,
@@ -54,6 +54,9 @@ CREATE TABLE expense_splits (
   settled BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Add comment to explain the ratio field
+COMMENT ON COLUMN expense_splits.ratio IS 'Split ratio for this user (e.g., 1, 2, 3 for different split amounts)';
 
 -- Create transfers table for settlement payments
 CREATE TABLE transfers (

@@ -1112,7 +1112,7 @@ function AddExpenseModal({
     }
 
     const totalAmount = parseFloat(formData.amount)
-    let splits: Array<{ name: string; email: string; amount: number }> = []
+    let splits: Array<{ userName: string; userEmail: string; amount: number; ratio: number }> = []
 
     // Calculate total ratio for selected members
     const totalRatio = formData.selectedMembers.reduce((sum, email) => {
@@ -1131,8 +1131,8 @@ function AddExpenseModal({
       const amount = Math.round(((totalAmount * ratio) / totalRatio) * 100) / 100
       
       return {
-        name: member?.name || '',
-        email: email,
+        userName: member?.name || '',
+        userEmail: email,
         amount: amount,
         ratio: ratio
       }
@@ -1443,7 +1443,7 @@ function EditExpenseModal({
     }
 
     const totalAmount = parseFloat(formData.amount)
-    let splits: Array<{ name: string; email: string; amount: number }> = []
+    let splits: Array<{ userName: string; userEmail: string; amount: number; ratio: number }> = []
 
     // Calculate total ratio for selected members
     const totalRatio = formData.selectedMembers.reduce((sum, email) => {
@@ -1462,8 +1462,8 @@ function EditExpenseModal({
       const amount = Math.round(((totalAmount * ratio) / totalRatio) * 100) / 100
       
       return {
-        name: member?.name || '',
-        email: email,
+        userName: member?.name || '',
+        userEmail: email,
         amount: amount,
         ratio: ratio
       }

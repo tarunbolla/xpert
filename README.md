@@ -88,19 +88,47 @@ Add these to your Vercel project:
 
 ## Usage
 
-1. **Create a Persona**: Enter your name and email (stored locally)
+1. **Sign In**: Use Google OAuth to authenticate
 2. **Create a Group**: Set up a group for your trip
-3. **Add Expenses**: Add expenses with automatic AI categorization
-4. **Track Spending**: View insights and spending breakdowns
-5. **Share Group**: Use group codes to invite others
+3. **Add Members**: Invite friends to join your group
+4. **Add Expenses**: Add expenses with automatic AI categorization and smart splitting
+5. **Track Spending**: View insights and spending breakdowns
+6. **Manage Transfers**: Record payments between group members
+7. **Edit & Delete**: Update or remove expenses and transfers
+8. **Audit Trail**: View complete history of all changes
 
 ## API Endpoints
 
+### Groups
 - `POST /api/groups` - Create a new group
+- `GET /api/groups?userEmail=<email>` - Get groups by user
+- `GET /api/groups?groupId=<id>` - Get single group by ID
 - `GET /api/groups?code=<code>` - Get group by code
+- `PUT /api/groups` - Update group details
+- `DELETE /api/groups?groupId=<id>` - Delete a group (admin only)
+- `PATCH /api/groups?groupId=<id>` - Archive/unarchive group (admin only)
+
+### Expenses
 - `POST /api/expenses` - Add a new expense
 - `GET /api/expenses?groupId=<id>` - Get group expenses
+- `PUT /api/expenses` - Update an expense
+- `DELETE /api/expenses?expenseId=<id>` - Delete an expense
+
+### Transfers
+- `POST /api/transfers` - Create a transfer between users
+- `GET /api/transfers?groupId=<id>` - Get group transfers
+- `PUT /api/transfers` - Update a transfer
+- `DELETE /api/transfers?transferId=<id>` - Delete a transfer
+
+### Group Members
+- `GET /api/group-members?groupId=<id>` - Get group members
+- `POST /api/group-members` - Add a member to group
+- `PUT /api/group-members` - Update member role
+- `DELETE /api/group-members?memberId=<id>` - Remove member from group
+
+### Insights & Audit
 - `GET /api/insights?groupId=<id>` - Get spending insights
+- `GET /api/audit-logs?entityType=<type>&entityId=<id>` - Get audit logs
 
 ## Database Schema
 
@@ -131,7 +159,29 @@ Add these to your Vercel project:
 - `user_email`: Email of person splitting
 - `user_name`: Name of person splitting
 - `amount`: Split amount
+- `ratio`: Split ratio (e.g., 1, 2, 3 for different split amounts)
 - `settled`: Boolean flag
+
+### Transfers
+- `id`: UUID primary key
+- `group_id`: Foreign key to groups
+- `from_user_email`: Email of person sending money
+- `from_user_name`: Name of person sending money
+- `to_user_email`: Email of person receiving money
+- `to_user_name`: Name of person receiving money
+- `amount`: Transfer amount
+- `description`: Optional description
+- `date`: Transfer date
+- `created_at`: Timestamp
+- `updated_at`: Timestamp
+
+### Group Members
+- `id`: UUID primary key
+- `group_id`: Foreign key to groups
+- `user_email`: Member's email
+- `user_name`: Member's name
+- `role`: 'admin' or 'member'
+- `joined_at`: Timestamp
 
 ### Audit Logs
 - `id`: UUID primary key

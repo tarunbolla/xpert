@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     // Create expense splits
     const splitsData = splits.map((split: any) => ({
       expense_id: expense.id,
-      user_email: split.email,
-      user_name: split.name,
+      user_email: split.userEmail,
+      user_name: split.userName,
       amount: split.amount,
       ratio: split.ratio,
     }))
@@ -190,8 +190,8 @@ export async function PUT(request: NextRequest) {
       // Insert new splits
       const splitsData = splits.map((split: any) => ({
         expense_id: expenseId,
-        user_email: split.email,
-        user_name: split.name,
+        user_email: split.userEmail,
+        user_name: split.userName,
         amount: split.amount,
         ratio: split.ratio,
       }))

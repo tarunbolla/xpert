@@ -172,11 +172,15 @@ const api = {
     title?: string
     description?: string
     amount?: number
+    category?: string
     splits?: Array<{
       userEmail: string
       userName: string
       amount: number
+      ratio: number
     }>
+    userEmail?: string
+    userName?: string
   }): Promise<Expense> {
     const response = await fetch('/api/expenses', {
       method: 'PUT',
@@ -231,6 +235,8 @@ const api = {
     toUserName: string
     amount: number
     description?: string
+    userEmail: string
+    userName: string
   }): Promise<Transfer> {
     const response = await fetch('/api/transfers', {
       method: 'PUT',
@@ -242,7 +248,7 @@ const api = {
     return transfer
   },
 
-  async deleteTransfer(transferId: string, userEmail: string, userName: string): Promise<void> {
+  async deleteTransfer(transferId: string, userEmail: string, userName: string, groupId?: string): Promise<void> {
     const response = await fetch(`/api/transfers?transferId=${transferId}&userEmail=${encodeURIComponent(userEmail)}&userName=${encodeURIComponent(userName)}`, {
       method: 'DELETE',
     })
@@ -562,7 +568,7 @@ export function useDeleteTransfer() {
       userEmail: string; 
       userName: string;
       groupId: string;
-    }) => api.deleteTransfer(transferId, userEmail, userName),
+    }) => api.deleteTransfer(transferId, userEmail, userName, groupId),
     onSuccess: (_, variables) => {
       // Invalidate transfers, expenses, and insights for the group
       queryClient.invalidateQueries({ queryKey: queryKeys.transfers(variables.groupId) })
