@@ -225,29 +225,40 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   const calculateUserShare = useCallback((expense: Expense) => {
     if (!user) return { amount: 0, type: 'none' }
     
-    const userSplit = expense.expense_splits.find(split => split.user_email === user.email!)
-    if (!userSplit) return { amount: 0, type: 'none' }
-    
-    const userAmount = userSplit.amount
     const isPaidByUser = expense.paid_by_email === user.email!
+    const userSplit = expense.expense_splits.find(split => split.user_email === user.email!)
     
     // Debug logging
-    if (isPaidByUser) {
-      const totalPaid = expense.amount
-      const lentToOthers = totalPaid - userAmount
-      console.log('Expense:', expense.title, 'Total paid:', totalPaid, 'Your share:', userAmount, 'Lent to others:', lentToOthers)
-    } else {
-      console.log('Expense:', expense.title, 'You borrowed:', userAmount)
-    }
+    console.log('Expense:', expense.title, 'Paid by user:', isPaidByUser, 'User in splits:', !!userSplit)
     
     if (isPaidByUser) {
-      // User paid the expense, show how much they lent to others
-      const totalPaid = expense.amount
-      const lentToOthers = totalPaid - userAmount
-      return { amount: lentToOthers, type: 'lent' }
-    } else {
-      // User borrowed money, show what they borrowed
+      // User paid the expense
+      if (userSplit) {
+        // User is in splits - calculate lent amount
+        const totalPaid = expense.amount
+        const userAmount = userSplit.amount
+        const lentToOthers = totalPaid - userAmount
+        console.log('Expense:', expense.title, 'Total paid:', totalPaid, 'Your share:', userAmount, 'Lent to others:', lentToOthers)
+        return { amount: lentToOthers, type: 'lent' }
+      } else if (expense.expense_splits.length > 0) {
+        // User paid but not in splits - they lent the total amount to others
+        const totalLentToOthers = expense.expense_splits.reduce((sum, split) => sum + split.amount, 0)
+        console.log('Expense:', expense.title, 'You paid:', expense.amount, 'Others owe you:', totalLentToOthers)
+        return { amount: totalLentToOthers, type: 'lent' }
+      } else {
+        // User paid but no splits - they paid for themselves
+        console.log('Expense:', expense.title, 'You paid:', expense.amount, 'No splits - you paid for yourself')
+        return { amount: 0, type: 'lent' }
+      }
+    } else if (userSplit) {
+      // User didn't pay but is in splits - they borrowed money
+      const userAmount = userSplit.amount
+      console.log('Expense:', expense.title, 'You borrowed:', userAmount)
       return { amount: userAmount, type: 'borrowed' }
+    } else {
+      // User neither paid nor is in splits
+      console.log('Expense:', expense.title, 'User not involved')
+      return { amount: 0, type: 'none' }
     }
   }, [user])
 
