@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { PlusIcon, ChartBarIcon, UserGroupIcon, ClockIcon, UsersIcon, ClipboardDocumentListIcon, BanknotesIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/lib/auth-context'
 import { 
   useGroup, 
   useExpenses, 
@@ -47,7 +48,7 @@ interface Settlement {
 
 export default function GroupDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const [userPersona, setUserPersona] = useState<{ name: string; email: string } | null>(null)
+  const { user, loading, signOut } = useAuth()
   const [showAddExpense, setShowAddExpense] = useState(false)
   const [showEditExpense, setShowEditExpense] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
@@ -85,18 +86,14 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   const isLoading = groupLoading || expensesLoading || insightsLoading
 
   useEffect(() => {
-    // Check for existing persona
-    const savedPersona = localStorage.getItem('userPersona')
-    if (savedPersona) {
-      setUserPersona(JSON.parse(savedPersona))
-    } else {
+    // Redirect to home if not authenticated
+    if (!loading && !user) {
       router.push('/')
-      return
     }
-  }, [])
+  }, [user, loading, router])
 
   const addExpense = async (expenseData: any) => {
-    if (!userPersona) return
+    if (!user) return
 
     try {
       await createExpenseMutation.mutateAsync({
@@ -130,14 +127,14 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   }
 
   const handleDeleteExpense = async (expense: Expense) => {
-    if (!userPersona) return
+    if (!user) return
 
     if (confirm(`Are you sure you want to delete "${expense.title}"?`)) {
       try {
         await deleteExpenseMutation.mutateAsync({
           expenseId: expense.id,
-          userEmail: userPersona.email,
-          userName: userPersona.name,
+          userEmail: user.email!,
+          userName: user.user_metadata?.full_name || user.email!,
           groupId: params.id,
         })
         
@@ -151,13 +148,13 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   }
 
   const addTransfer = async (transferData: any) => {
-    if (!userPersona) return
+    if (!user) return
 
     try {
       await createTransferMutation.mutateAsync({
         groupId: params.id,
-        fromUserEmail: userPersona.email,
-        fromUserName: userPersona.name,
+        fromUserEmail: user.email!,
+        fromUserName: user.user_metadata?.full_name || user.email!,
         ...transferData,
       })
       setShowAddTransfer(false)
@@ -187,14 +184,14 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
   }
 
   const handleDeleteTransfer = async (transfer: Transfer) => {
-    if (!userPersona) return
+    if (!user) return
 
     if (confirm(`Are you sure you want to delete this transfer?`)) {
       try {
         await deleteTransferMutation.mutateAsync({
           transferId: transfer.id,
-          userEmail: userPersona.email,
-          userName: userPersona.name,
+          userEmail: user.email!,
+          userName: user.user_metadata?.full_name || user.email!,
           groupId: params.id,
         })
         
@@ -226,13 +223,13 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
 
   // Calculate user's share for an expense
   const calculateUserShare = useCallback((expense: Expense) => {
-    if (!userPersona) return { amount: 0, type: 'none' }
+    if (!user) return { amount: 0, type: 'none' }
     
-    const userSplit = expense.expense_splits.find(split => split.user_email === userPersona.email)
+    const userSplit = expense.expense_splits.find(split => split.user_email === user.email!)
     if (!userSplit) return { amount: 0, type: 'none' }
     
     const userAmount = userSplit.amount
-    const isPaidByUser = expense.paid_by_email === userPersona.email
+    const isPaidByUser = expense.paid_by_email === user.email!
     
     // Debug logging
     if (isPaidByUser) {
@@ -252,7 +249,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       // User borrowed money, show what they borrowed
       return { amount: userAmount, type: 'borrowed' }
     }
-  }, [userPersona])
+  }, [user])
 
   // Calculate balances and settlements
   const calculateBalances = useCallback(() => {
@@ -381,6 +378,33 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
     calculateBalances()
   }, [calculateBalances])
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please sign in to view this group</p>
+          <button
+            onClick={() => router.push('/')}
+            className="btn-primary"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -433,12 +457,30 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-7 h-7 sm:w-9 sm:h-9 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-xs sm:text-sm font-bold text-green-600">
-                  {userPersona?.name.charAt(0).toUpperCase()}
+              {user?.user_metadata?.avatar_url ? (
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt={user.user_metadata?.full_name || user.email || 'User'}
+                  className="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover border border-gray-200"
+                />
+              ) : (
+                <div className="w-7 h-7 sm:w-9 sm:h-9 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs sm:text-sm font-bold text-green-600">
+                    {user?.user_metadata?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900 text-sm sm:text-base hidden sm:inline">
+                  {user?.user_metadata?.full_name || user?.email}
                 </span>
+                <button
+                  onClick={signOut}
+                  className="text-xs text-gray-500 hover:text-gray-700 hover:underline transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
-              <span className="font-semibold text-gray-900 text-sm sm:text-base hidden sm:inline">{userPersona?.name}</span>
             </div>
           </div>
         </div>
@@ -686,8 +728,8 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                                         })()}
                                         {item.type === 'transfer' && (() => {
                                           const transfer = item as Transfer
-                                          const isReceiver = transfer.to_user_email === userPersona?.email
-                                          const isSender = transfer.from_user_email === userPersona?.email
+                                          const isReceiver = transfer.to_user_email === user?.email
+                                          const isSender = transfer.from_user_email === user?.email
                                           
                                           if (!isReceiver && !isSender) return null
                                           
@@ -936,7 +978,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       {/* Add Transfer Modal */}
       {showAddTransfer && (
         <AddTransferModal
-          userPersona={userPersona}
+          user={user ? { name: user.user_metadata?.full_name || user.email!, email: user.email! } : null}
           group={group}
           prefilledData={prefilledTransfer}
           onClose={() => {
@@ -950,7 +992,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       {/* Edit Transfer Modal */}
       {showEditTransfer && editingTransfer && (
         <EditTransferModal
-          userPersona={userPersona}
+          user={user ? { name: user.user_metadata?.full_name || user.email!, email: user.email! } : null}
           group={group}
           transfer={editingTransfer}
           onClose={() => {
@@ -965,7 +1007,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       {/* Add Expense Modal */}
       {showAddExpense && (
         <AddExpenseModal
-          userPersona={userPersona}
+          user={user ? { name: user.user_metadata?.full_name || user.email!, email: user.email! } : null}
           group={group}
           onClose={() => setShowAddExpense(false)}
           onAdd={addExpense}
@@ -975,7 +1017,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       {/* Edit Expense Modal */}
       {showEditExpense && editingExpense && (
         <EditExpenseModal
-          userPersona={userPersona}
+          user={user ? { name: user.user_metadata?.full_name || user.email!, email: user.email! } : null}
           group={group}
           expense={editingExpense}
           onClose={() => {
@@ -991,7 +1033,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
       {showManageMembers && (
         <ManageMembersModal
           group={group}
-          userPersona={userPersona}
+          user={user ? { name: user.user_metadata?.full_name || user.email!, email: user.email! } : null}
           onClose={() => setShowManageMembers(false)}
           onUpdate={() => {}}
         />
@@ -1002,12 +1044,12 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
 
 // Simplified Add Expense Modal Component
 function AddExpenseModal({ 
-  userPersona, 
+  user, 
   group,
   onClose, 
   onAdd 
 }: { 
-  userPersona: { name: string; email: string } | null
+  user: { name: string; email: string } | null
   group: Group | null
   onClose: () => void
   onAdd: (data: any) => void
@@ -1024,7 +1066,7 @@ function AddExpenseModal({
       return `${year}-${month}-${day}`;
     })(), // Default to today in YYYY-MM-DD format
     category: '', // Will be set by AI
-    paidByEmail: userPersona?.email || '',
+    paidByEmail: user?.email || '',
     selectedMembers: [] as string[],
     memberRatios: {} as Record<string, number>
   })
@@ -1092,7 +1134,7 @@ function AddExpenseModal({
       date: formData.date,
       category: formData.category,
       paidByEmail: formData.paidByEmail,
-      paidByName: group?.members?.find(m => m.email === formData.paidByEmail)?.name || userPersona?.name,
+      paidByName: group?.members?.find(m => m.email === formData.paidByEmail)?.name || user?.name,
       splits
     })
   }
@@ -1335,14 +1377,14 @@ function AddExpenseModal({
 
 // Edit Expense Modal Component
 function EditExpenseModal({ 
-  userPersona, 
+  user, 
   group,
   expense,
   onClose, 
   onUpdate,
   onDelete
 }: { 
-  userPersona: { name: string; email: string } | null
+  user: { name: string; email: string } | null
   group: Group | null
   expense: Expense
   onClose: () => void
@@ -1421,7 +1463,7 @@ function EditExpenseModal({
       description: formData.description,
       amount: totalAmount,
       paidByEmail: formData.paidByEmail,
-      paidByName: group?.members?.find(m => m.email === formData.paidByEmail)?.name || userPersona?.name,
+      paidByName: group?.members?.find(m => m.email === formData.paidByEmail)?.name || user?.name,
       splits
     })
   }
@@ -1642,12 +1684,12 @@ function EditExpenseModal({
 // Manage Members Modal Component
 function ManageMembersModal({ 
   group, 
-  userPersona, 
+  user, 
   onClose, 
   onUpdate 
 }: { 
   group: Group | null
-  userPersona: { name: string; email: string } | null
+  user: { name: string; email: string } | null
   onClose: () => void
   onUpdate: (group: Group) => void
 }) {
@@ -1671,7 +1713,7 @@ function ManageMembersModal({
       return
     }
 
-    if (!group || !userPersona) return
+    if (!group || !user) return
 
     try {
       await addMemberMutation.mutateAsync({
@@ -1679,8 +1721,8 @@ function ManageMembersModal({
         userEmail: newMemberEmail,
         userName: newMemberName,
         role: 'member',
-        addedByEmail: userPersona.email,
-        addedByName: userPersona.name,
+        addedByEmail: user.email!,
+        addedByName: (user as any).user_metadata?.full_name || user.email!,
       })
       
       setNewMemberEmail('')
@@ -1691,19 +1733,19 @@ function ManageMembersModal({
   }
 
   const removeMember = async (memberId: string, email: string) => {
-    if (email === userPersona?.email) {
+    if (email === user?.email) {
       toast.error('Cannot remove yourself')
       return
     }
 
-    if (!group || !userPersona) return
+    if (!group || !user) return
 
     if (confirm(`Are you sure you want to remove ${email} from the group?`)) {
       try {
         await removeMemberMutation.mutateAsync({
           memberId,
-          removedByEmail: userPersona.email,
-          removedByName: userPersona.name,
+          removedByEmail: user.email!,
+          removedByName: (user as any).user_metadata?.full_name || user.email!,
           groupId: group.id,
         })
       } catch (error) {
@@ -1713,7 +1755,7 @@ function ManageMembersModal({
   }
 
   const updateMemberRole = async (memberId: string, email: string, role: 'admin' | 'member') => {
-    if (email === userPersona?.email) {
+    if (email === user?.email) {
       toast.error('Cannot change your own role')
       return
     }
@@ -1775,14 +1817,14 @@ function ManageMembersModal({
                     <select
                       value={member.role}
                       onChange={(e) => updateMemberRole(member.id, member.user_email, e.target.value as 'admin' | 'member')}
-                      disabled={member.user_email === userPersona?.email}
+                      disabled={member.user_email === user?.email}
                       className="px-2 py-1 border border-gray-300 rounded text-xs bg-white focus:ring-1 focus:ring-green-500 focus:border-green-500"
                     >
                       <option value="admin">Admin</option>
                       <option value="member">Member</option>
                     </select>
                     
-                    {member.user_email !== userPersona?.email && member.id && (
+                    {member.user_email !== user?.email && member.id && (
                       <button
                         onClick={() => removeMember(member.id, member.user_email)}
                         className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
@@ -1852,13 +1894,13 @@ function ManageMembersModal({
 
 // Add Transfer Modal Component
 function AddTransferModal({ 
-  userPersona, 
+  user, 
   group,
   prefilledData,
   onClose, 
   onAdd 
 }: { 
-  userPersona: { name: string; email: string } | null
+  user: { name: string; email: string } | null
   group: Group | undefined
   prefilledData?: {
     from_user_email: string
@@ -1868,7 +1910,7 @@ function AddTransferModal({
   onClose: () => void
   onAdd: (data: any) => void
 }) {
-  const [fromUserEmail, setFromUserEmail] = useState(prefilledData?.from_user_email || userPersona?.email || '')
+  const [fromUserEmail, setFromUserEmail] = useState(prefilledData?.from_user_email || user?.email || '')
   const [toUserEmail, setToUserEmail] = useState(prefilledData?.to_user_email || '')
   const [amount, setAmount] = useState(prefilledData?.amount?.toString() || '')
   const [description, setDescription] = useState('')
@@ -1876,7 +1918,7 @@ function AddTransferModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!fromUserEmail || !toUserEmail || !amount || !userPersona || !group) return
+    if (!fromUserEmail || !toUserEmail || !amount || !user || !group) return
 
     const amountNum = parseFloat(amount)
     if (amountNum <= 0) {

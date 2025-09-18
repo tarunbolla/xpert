@@ -43,19 +43,33 @@ export default function HomePage() {
                 </div>
               ) : user ? (
                 <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-xs sm:text-sm font-semibold text-green-600">
-                      {user.user_metadata?.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                  {user.user_metadata?.avatar_url ? (
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt={user.user_metadata?.full_name || user.email || 'User'}
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs sm:text-sm font-semibold text-green-600">
+                        {user.user_metadata?.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex flex-col">
+                    <span className="hidden sm:inline text-gray-900 font-medium">
+                      {user.user_metadata?.full_name || user.email}
                     </span>
+                    <span className="sm:hidden text-gray-900 font-medium">
+                      {user.user_metadata?.full_name || user.email}
+                    </span>
+                    <button
+                      onClick={handleSignOut}
+                      className="text-xs text-gray-500 hover:text-gray-700 hover:underline transition-colors"
+                    >
+                      Sign out
+                    </button>
                   </div>
-                  <span className="hidden sm:inline">Welcome back, {user.user_metadata?.full_name || user.email}</span>
-                  <span className="sm:hidden">{user.user_metadata?.full_name || user.email}</span>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-xs text-gray-500 hover:text-gray-700 underline"
-                  >
-                    Sign out
-                  </button>
                 </div>
               ) : null}
             </div>

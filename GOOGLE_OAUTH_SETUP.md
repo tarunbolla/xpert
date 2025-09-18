@@ -139,13 +139,10 @@ user.id                      // Unique user identifier
 
 ### API Integration
 
-Your existing API routes will work seamlessly:
+Your existing API routes will work seamlessly with authenticated users:
 
 ```typescript
-// Before (localStorage)
-const userPersona = JSON.parse(localStorage.getItem('userPersona'))
-
-// After (Supabase Auth)
+// Get authenticated user data
 const { data: { user } } = await supabase.auth.getUser()
 // Use user.email and user.user_metadata.full_name
 ```

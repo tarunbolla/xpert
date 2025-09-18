@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 import type { Group, Transfer } from '@/lib/hooks/use-api'
 
 interface EditTransferModalProps {
-  userPersona: { name: string; email: string } | null
+  user: { name: string; email: string } | null
   group: Group | undefined
   transfer: Transfer
   onClose: () => void
@@ -16,7 +16,7 @@ interface EditTransferModalProps {
 }
 
 export function EditTransferModal({ 
-  userPersona, 
+  user, 
   group,
   transfer,
   onClose, 
@@ -31,7 +31,7 @@ export function EditTransferModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!fromUserEmail || !toUserEmail || !amount || !userPersona || !group) return
+    if (!fromUserEmail || !toUserEmail || !amount || !user || !group) return
 
     const amountNum = parseFloat(amount)
     if (amountNum <= 0) {
@@ -60,8 +60,8 @@ export function EditTransferModal({
       toUserName: toUser.name,
       amount: amountNum,
       description: description.trim() || undefined,
-      userEmail: userPersona.email,
-      userName: userPersona.name
+      userEmail: user.email,
+      userName: user.name
     })
   }
 

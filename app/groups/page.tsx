@@ -6,11 +6,12 @@ import { PlusIcon, UserGroupIcon, ClipboardDocumentListIcon, TrashIcon, ArchiveB
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { useGroups, useCreateGroup, useDeleteGroup, useArchiveGroup, type Group } from '@/lib/hooks/use-api'
+import { useAuth } from '@/lib/auth-context'
 
 
 export default function GroupsPage() {
   const router = useRouter()
-  const [userPersona, setUserPersona] = useState<{ name: string; email: string } | null>(null)
+  const { user, loading, signOut } = useAuth()
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [newGroupDescription, setNewGroupDescription] = useState('')
@@ -20,22 +21,17 @@ export default function GroupsPage() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
 
   // React Query hooks
-  const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useGroups(userPersona?.email || '')
+  const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useGroups(user?.email || '')
   const createGroupMutation = useCreateGroup()
   const deleteGroupMutation = useDeleteGroup()
   const archiveGroupMutation = useArchiveGroup()
 
   useEffect(() => {
-    // Check for existing persona
-    const savedPersona = localStorage.getItem('userPersona')
-    if (savedPersona) {
-      const persona = JSON.parse(savedPersona)
-      setUserPersona(persona)
-    } else {
-      // Redirect to home if no persona
+    // Redirect to home if not authenticated
+    if (!loading && !user) {
       router.push('/')
     }
-  }, [])
+  }, [user, loading, router])
 
   // Close action menu when clicking outside
   useEffect(() => {
@@ -56,7 +52,7 @@ export default function GroupsPage() {
       return
     }
 
-    if (!userPersona) {
+    if (!user) {
       toast.error('User information not found')
       return
     }
@@ -65,8 +61,8 @@ export default function GroupsPage() {
       const group = await createGroupMutation.mutateAsync({
         name: newGroupName,
         description: newGroupDescription,
-        userEmail: userPersona.email,
-        userName: userPersona.name,
+        userEmail: user.email!,
+        userName: user.user_metadata?.full_name || user.email!,
       })
       
       // Reset form
@@ -82,13 +78,13 @@ export default function GroupsPage() {
   }
 
   const deleteGroup = async () => {
-    if (!selectedGroup || !userPersona) return
+    if (!selectedGroup || !user) return
 
     try {
       await deleteGroupMutation.mutateAsync({
         groupId: selectedGroup.id,
-        userEmail: userPersona.email,
-        userName: userPersona.name,
+        userEmail: user.email!,
+        userName: user.user_metadata?.full_name || user.email!,
       })
       
       setShowDeleteModal(false)
@@ -99,13 +95,13 @@ export default function GroupsPage() {
   }
 
   const archiveGroup = async () => {
-    if (!selectedGroup || !userPersona) return
+    if (!selectedGroup || !user) return
 
     try {
       await archiveGroupMutation.mutateAsync({
         groupId: selectedGroup.id,
-        userEmail: userPersona.email,
-        userName: userPersona.name,
+        userEmail: user.email!,
+        userName: user.user_metadata?.full_name || user.email!,
         archived: !selectedGroup.archived, // Toggle the archived state
       })
       
@@ -124,8 +120,31 @@ export default function GroupsPage() {
     }
   }
 
-  if (!userPersona) {
-    return <div>Loading...</div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please sign in to view your groups</p>
+          <button
+            onClick={() => router.push('/')}
+            className="btn-primary"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (groupsError) {
@@ -157,12 +176,30 @@ export default function GroupsPage() {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-7 h-7 sm:w-9 sm:h-9 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-xs sm:text-sm font-bold text-green-600">
-                  {userPersona?.name.charAt(0).toUpperCase()}
+              {user?.user_metadata?.avatar_url ? (
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt={user.user_metadata?.full_name || user.email || 'User'}
+                  className="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover border border-gray-200"
+                />
+              ) : (
+                <div className="w-7 h-7 sm:w-9 sm:h-9 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs sm:text-sm font-bold text-green-600">
+                    {user?.user_metadata?.full_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-900 text-sm sm:text-base hidden sm:inline">
+                  {user?.user_metadata?.full_name || user?.email}
                 </span>
+                <button
+                  onClick={signOut}
+                  className="text-xs text-gray-500 hover:text-gray-700 hover:underline transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
-              <span className="font-semibold text-gray-900 text-sm sm:text-base hidden sm:inline">{userPersona?.name}</span>
             </div>
           </div>
         </div>
