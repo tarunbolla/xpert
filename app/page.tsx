@@ -5,34 +5,22 @@ import { motion } from 'framer-motion'
 import { PlusIcon, UsersIcon, ChartBarIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
 
 export default function HomePage() {
   const router = useRouter()
-  const [userPersona, setUserPersona] = useState<{ name: string; email: string } | null>(null)
-
-  useEffect(() => {
-    // Check for existing persona in localStorage
-    const savedPersona = localStorage.getItem('userPersona')
-    if (savedPersona) {
-      setUserPersona(JSON.parse(savedPersona))
-    }
-  }, [])
+  const { user, loading, signInWithGoogle, signOut } = useAuth()
 
   const handleGetStarted = () => {
-    if (!userPersona) {
-      // Show persona setup modal
-      const name = prompt('What\'s your name?')
-      const email = prompt('What\'s your email?')
-      
-      if (name && email) {
-        const persona = { name, email }
-        localStorage.setItem('userPersona', JSON.stringify(persona))
-        setUserPersona(persona)
-        router.push('/groups')
-      }
+    if (!user) {
+      signInWithGoogle()
     } else {
       router.push('/groups')
     }
+  }
+
+  const handleSignOut = () => {
+    signOut()
   }
 
   return (
@@ -48,17 +36,28 @@ export default function HomePage() {
               <span className="text-lg sm:text-xl font-bold text-gray-900">Xpert</span>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {userPersona && (
+              {loading ? (
+                <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 rounded-full animate-pulse"></div>
+                  <span className="hidden sm:inline">Loading...</span>
+                </div>
+              ) : user ? (
                 <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-full flex items-center justify-center">
                     <span className="text-xs sm:text-sm font-semibold text-green-600">
-                      {userPersona.name.charAt(0).toUpperCase()}
+                      {user.user_metadata?.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <span className="hidden sm:inline">Welcome back, {userPersona.name}</span>
-                  <span className="sm:hidden">{userPersona.name}</span>
+                  <span className="hidden sm:inline">Welcome back, {user.user_metadata?.full_name || user.email}</span>
+                  <span className="sm:hidden">{user.user_metadata?.full_name || user.email}</span>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-xs text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Sign out
+                  </button>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -90,7 +89,7 @@ export default function HomePage() {
                 className="btn-primary flex items-center gap-2 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
               >
                 <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                {userPersona ? 'Manage Groups' : 'Get Started'}
+                {user ? 'Manage Groups' : 'Sign in with Google'}
               </button>
               <Link
                 href="/demo"
@@ -226,7 +225,7 @@ export default function HomePage() {
                 className="bg-white text-green-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-base sm:text-lg w-full sm:w-auto"
               >
                 <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                Start Your Journey
+                {user ? 'Manage Groups' : 'Sign in with Google'}
               </button>
               <Link
                 href="/demo"
@@ -241,3 +240,4 @@ export default function HomePage() {
     </div>
   )
 }
+

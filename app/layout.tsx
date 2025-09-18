@@ -3,6 +3,7 @@ import { Inter, Poppins } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { QueryProvider } from '@/lib/query-client'
+import { AuthProvider } from '@/lib/auth-context'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -29,8 +30,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${poppins.variable} font-sans`}>
         <QueryProvider>
-          {children}
-          <Toaster 
+          <AuthProvider>
+            {children}
+            <Toaster 
             position="top-center" 
             toastOptions={{
               duration: 4000,
@@ -73,6 +75,7 @@ export default function RootLayout({
               },
             }}
           />
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>
