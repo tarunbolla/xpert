@@ -234,6 +234,9 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
     const userAmount = userSplit.amount
     const isPaidByUser = expense.paid_by_email === userPersona.email
     
+    // Debug logging
+    console.log('Expense:', expense.title, 'Paid by:', expense.paid_by_email, 'User:', userPersona.email, 'Is paid by user:', isPaidByUser, 'User amount:', userAmount)
+    
     if (isPaidByUser) {
       // User paid the expense, show what they paid
       return { amount: userAmount, type: 'paid' }
