@@ -235,14 +235,22 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
     const isPaidByUser = expense.paid_by_email === userPersona.email
     
     // Debug logging
-    console.log('Expense:', expense.title, 'Paid by:', expense.paid_by_email, 'User:', userPersona.email, 'Is paid by user:', isPaidByUser, 'User amount:', userAmount)
+    if (isPaidByUser) {
+      const totalPaid = expense.amount
+      const lentToOthers = totalPaid - userAmount
+      console.log('Expense:', expense.title, 'Total paid:', totalPaid, 'Your share:', userAmount, 'Lent to others:', lentToOthers)
+    } else {
+      console.log('Expense:', expense.title, 'You borrowed:', userAmount)
+    }
     
     if (isPaidByUser) {
-      // User paid the expense, show what they paid
-      return { amount: userAmount, type: 'paid' }
+      // User paid the expense, show how much they lent to others
+      const totalPaid = expense.amount
+      const lentToOthers = totalPaid - userAmount
+      return { amount: lentToOthers, type: 'lent' }
     } else {
-      // User owes money, show what they owe
-      return { amount: userAmount, type: 'owe' }
+      // User borrowed money, show what they borrowed
+      return { amount: userAmount, type: 'borrowed' }
     }
   }, [userPersona])
 
@@ -660,12 +668,12 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
                                           return (
                                             <>
                                               <div className={`text-xs font-semibold ${
-                                                userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
+                                                userShare.type === 'borrowed' ? 'text-red-600' : 'text-green-600'
                                               }`}>
-                                                {userShare.type === 'owe' ? 'You owe' : 'You paid'}
+                                                {userShare.type === 'borrowed' ? 'You borrowed' : 'You lent'}
                                               </div>
                                               <div className={`text-xs font-semibold ${
-                                                userShare.type === 'owe' ? 'text-red-600' : 'text-green-600'
+                                                userShare.type === 'borrowed' ? 'text-red-600' : 'text-green-600'
                                               }`}>
                                                 ${userShare.amount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                               </div>
